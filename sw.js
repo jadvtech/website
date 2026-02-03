@@ -2,11 +2,9 @@
 const CACHE_VERSION = 'v1';
 const CACHE_NAME = `jadv-cache-${CACHE_VERSION}`;
 
-// Assets to cache on install
+// Assets to cache on install (excluding index.html)
 const STATIC_ASSETS = [
-    '/',
     '/logo.webp',
-    '/index.html',
 ];
 
 // Install event - cache static assets
@@ -38,6 +36,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     // Skip cross-origin requests
     if (!event.request.url.startsWith(self.location.origin)) {
+        return;
+    }
+
+    // Never cache index.html - always fetch fresh
+    if (event.request.url.endsWith('/') || event.request.url.endsWith('index.html')) {
+        event.respondWith(fetch(event.request));
         return;
     }
 
